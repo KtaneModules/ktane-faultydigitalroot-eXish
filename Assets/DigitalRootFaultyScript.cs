@@ -87,6 +87,7 @@ public class DigitalRootFaultyScript : MonoBehaviour {
                 {
                     Debug.LogFormat("[Faulty Digital Root #{0}] Input of '{1}' was incorrect! Resetting module...", moduleId, madeAns);
                     StopCoroutine(displayCrack);
+                    bomb.GetComponent<KMBombModule>().HandleStrike();
                     numDisplay1.GetComponent<TextMesh>().text = "";
                     numDisplay2.GetComponent<TextMesh>().text = "";
                     Start();
