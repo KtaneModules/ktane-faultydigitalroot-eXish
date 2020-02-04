@@ -337,7 +337,6 @@ public class DigitalRootFaultyScript : MonoBehaviour {
             {
                 if (cmdIsValid(command))
                 {
-                    yield return null;
                     for (int i = 1; i < parameters.Length; i++)
                     {
                         if (parameters[i].EqualsIgnoreCase("yes"))
@@ -349,6 +348,8 @@ public class DigitalRootFaultyScript : MonoBehaviour {
                         }
                         yield return new WaitForSeconds(0.1f);
                     }
+                    if (moduleSolved) yield return "solve";
+                    else yield return "strike";
                 }
             }
             yield break;
