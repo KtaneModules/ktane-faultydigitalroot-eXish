@@ -339,6 +339,7 @@ public class DigitalRootFaultyScript : MonoBehaviour {
                 {
                     for (int i = 1; i < parameters.Length; i++)
                     {
+                        yield return null;
                         if (parameters[i].EqualsIgnoreCase("yes"))
                         {
                             buttons[0].OnInteract();
@@ -349,7 +350,7 @@ public class DigitalRootFaultyScript : MonoBehaviour {
                         yield return new WaitForSeconds(0.1f);
                     }
                     if (moduleSolved) yield return "solve";
-                    else yield return "strike";
+                    else if (madeAns == "") yield return "strike"; 
                 }
             }
             yield break;
