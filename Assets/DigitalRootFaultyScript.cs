@@ -337,9 +337,9 @@ public class DigitalRootFaultyScript : MonoBehaviour {
             {
                 if (cmdIsValid(command))
                 {
+                    yield return null;
                     for (int i = 1; i < parameters.Length; i++)
                     {
-                        yield return null;
                         if (parameters[i].EqualsIgnoreCase("yes"))
                         {
                             buttons[0].OnInteract();
