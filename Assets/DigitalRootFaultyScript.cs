@@ -20,9 +20,6 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     public GameObject scrDisplay2;
     public GameObject scrDisplay3;
 
-    public GameObject inputs;
-    public Material[] ledmats;
-
     private int topTotal;
 
     private int ansTop;
@@ -38,6 +35,8 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
 
+    private bool finishAnim = false;
+
     void Awake()
     {
         moduleId = moduleIdCounter++;
@@ -49,7 +48,6 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     }
 
     void Start () {
-        inputs.GetComponent<MeshRenderer>().material = ledmats[0];
         topTotal = 0;
         ansTop = 0;
         bottomNum = 0;
@@ -67,7 +65,6 @@ public class DigitalRootFaultyScript : MonoBehaviour {
         {
             pressed.AddInteractionPunch(0.25f);
             audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-            inputs.GetComponent<MeshRenderer>().material = ledmats[1];
             if(pressed == buttons[0])
             {
                 madeAns += "1";
@@ -289,6 +286,7 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     private IEnumerator brokeDisplay2()
     {
         yield return null;
+        finishAnim = true;
         while (true)
         {
             float rand = UnityEngine.Random.Range(0.1f, 1.0f);
@@ -303,57 +301,86 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     }
 
     //twitch plays
-    private bool cmdIsValid(string param)
+    private int cmdIsValid(string param)
     {
-        string[] parameters = param.Split(' ',',');
-        for(int i = 1; i < parameters.Length; i++)
+        string[] parameters = param.Split(' ', ',');
+        for (int i = 1; i < parameters.Length; i++)
         {
-            if(!parameters[i].EqualsIgnoreCase("yes") && !parameters[i].EqualsIgnoreCase("no"))
+            if (!parameters[i].EqualsIgnoreCase("yes") && !parameters[i].EqualsIgnoreCase("no") && !parameters[i].EqualsIgnoreCase("y") && !parameters[i].EqualsIgnoreCase("n"))
             {
-                return false;
+                return i;
             }
         }
-        return true;
+        return -1;
     }
 
     #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"!{0} press yes [Presses the yes button] | !{0} press no [Presses the no button] | !{0} reset [Resets all inputs] | Yes's and No's can be chained";
+    private readonly string TwitchHelpMessage = @"!{0} press <btn1> <btn2> <btn3> <btn4> [Presses the four specified buttons in order from 1-4] | Valid buttons are yes/y and no/n";
     #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string command)
     {
-        if (Regex.IsMatch(command, @"^\s*reset\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-        {
-            yield return null;
-            madeAns = "";
-            Debug.LogFormat("[Faulty Digital Root #{0}] Reset of inputs triggered! (TP)", moduleId);
-            inputs.GetComponent<MeshRenderer>().material = ledmats[0];
-            yield break;
-        }
         string[] parameters = command.Split(' ');
         if (Regex.IsMatch(parameters[0], @"^\s*press\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
-            if(parameters.Length > 1)
+            yield return null;
+            if (parameters.Length == 5)
             {
-                if (cmdIsValid(command))
+                int cmdval = cmdIsValid(command);
+                if (cmdval == -1)
                 {
-                    yield return null;
                     for (int i = 1; i < parameters.Length; i++)
                     {
-                        if (parameters[i].EqualsIgnoreCase("yes"))
+                        if (parameters[i].EqualsIgnoreCase("yes") || parameters[i].EqualsIgnoreCase("y"))
                         {
                             buttons[0].OnInteract();
-                        }else if (parameters[i].EqualsIgnoreCase("no"))
+                        }
+                        else if (parameters[i].EqualsIgnoreCase("no") || parameters[i].EqualsIgnoreCase("n"))
                         {
                             buttons[1].OnInteract();
                         }
                         yield return new WaitForSeconds(0.1f);
                     }
                     if (moduleSolved) yield return "solve";
-                    else if (madeAns == "") yield return "strike"; 
                 }
+                else
+                {
+                    yield return "sendtochaterror The specified button '" + parameters[cmdval] + "' is invalid!";
+                }
+            }
+            else if (parameters.Length > 5)
+            {
+                yield return "sendtochaterror Too many parameters!";
+            }
+            else if (parameters.Length < 5)
+            {
+                yield return "sendtochaterror Please specify all four buttons that need to be pressed!";
             }
             yield break;
         }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        if (moduleSolved != true)
+        {
+            if (!madeAns.Equals(""))
+            {
+                madeAns = "";
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                if (binaryAns[i].Equals('1'))
+                {
+                    buttons[0].OnInteract();
+                }
+                else
+                {
+                    buttons[1].OnInteract();
+                }
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+        while (!finishAnim) { yield return true; yield return new WaitForSeconds(0.1f); }
     }
 }
