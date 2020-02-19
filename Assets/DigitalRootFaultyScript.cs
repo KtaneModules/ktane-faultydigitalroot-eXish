@@ -349,6 +349,8 @@ public class DigitalRootFaultyScript : MonoBehaviour {
                         }
                         yield return new WaitForSeconds(0.1f);
                     }
+                    if (moduleSolved) yield return "solve";
+                    else if (madeAns == "") yield return "strike"; 
                 }
             }
             yield break;
