@@ -64,7 +64,7 @@ public class DigitalRootFaultyScript : MonoBehaviour {
         if(moduleSolved != true)
         {
             pressed.AddInteractionPunch(0.25f);
-            audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+            audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, pressed.transform);
             if(pressed == buttons[0])
             {
                 madeAns += "1";
@@ -248,9 +248,9 @@ public class DigitalRootFaultyScript : MonoBehaviour {
         numDisplay2.GetComponent<TextMesh>().text = "";
         for (int i = 0; i < 130; i++)
         {
-            int rand1 = UnityEngine.Random.RandomRange(0, 10);
-            int rand2 = UnityEngine.Random.RandomRange(0, 10);
-            int rand3 = UnityEngine.Random.RandomRange(0, 10);
+            int rand1 = UnityEngine.Random.Range(0, 10);
+            int rand2 = UnityEngine.Random.Range(0, 10);
+            int rand3 = UnityEngine.Random.Range(0, 10);
             if (i < 50)
             {
                 scrDisplay1.GetComponent<TextMesh>().text = rand1 + "";
@@ -364,11 +364,12 @@ public class DigitalRootFaultyScript : MonoBehaviour {
     {
         if (moduleSolved != true)
         {
-            if (!madeAns.Equals(""))
+            if (!madeAns.Equals(binaryAns.Substring(0, madeAns.Length)))
             {
                 madeAns = "";
             }
-            for (int i = 0; i < 4; i++)
+            int start = madeAns.Length;
+            for (int i = start; i < 4; i++)
             {
                 if (binaryAns[i].Equals('1'))
                 {
